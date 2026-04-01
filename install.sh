@@ -60,18 +60,16 @@ echo -e "${YELLOW}[5/6] 生成配置...${PLAIN}"
 # 生成 UUID
 UUID=$(xray uuid)
 
-# 生成密钥对 (根据用户提供的特殊输出格式进行解析)
-# 用户反馈格式: 
-# PrivateKey: xxx
-# Password: xxx (对应 Public Key)
+# 核心修复：更健壮的密钥解析逻辑
+# 无论输出是 "PrivateKey: xxxx" 还是 "Private key: xxxx"，$NF 都会提取最后一列真正的密钥
 KEYS=$(xray x25519)
-PRIVATE_KEY=$(echo "$KEYS" | grep "PrivateKey" | awk '{print $2}')
-PUBLIC_KEY=$(echo "$KEYS" | grep "Password" | awk '{print $2}')
+PRIVATE_KEY=$(echo "$KEYS" | grep -i "Private" | awk '{print $NF}')
+PUBLIC_KEY=$(echo "$KEYS" | grep -i -E "Public|Password" | awk '{print $NF}')
 
-# 如果上面的解析失败（兼容标准版 Xray），尝试标准格式
-if [[ -z "$PUBLIC_KEY" ]]; then
-    PRIVATE_KEY=$(echo "$KEYS" | grep "Private" | awk '{print $3}')
-    PUBLIC_KEY=$(echo "$KEYS" | grep "Public" | awk '{print $3}')
+# 密钥安全校验
+if [[ -z "$PRIVATE_KEY" || -z "$PUBLIC_KEY" || "$PRIVATE_KEY" == *"("* || "$PUBLIC_KEY" == *"("* ]]; then
+    echo -e "${RED}严重错误：密钥生成或解析失败，请检查 Xray 版本或手动排查！${PLAIN}"
+    exit 1
 fi
 
 # 写入配置文件
@@ -135,18 +133,23 @@ EOF
 systemctl restart xray
 systemctl enable xray > /dev/null 2>&1
 
+# 检查服务是否成功启动
+if ! systemctl is-active --quiet xray; then
+    echo -e "${RED}Xray 启动失败！可能是端口 ${PORT} 被占用（例如 LNMP 的 Nginx）。请使用 journalctl -u xray -e 查看报错日志。${PLAIN}"
+    exit 1
+fi
+
 # 6. 输出结果
 echo -e "${YELLOW}[6/6] 生成连接信息...${PLAIN}"
 
 # 获取本机 IP
 IP=$(curl -s4m8 ifconfig.me)
 
-# 拼接 VLESS 链接 (使用 URL 编码处理名称中的特殊字符，虽然这里主要是英文)
-# 也就是最后 #后面加上用户自定义的名字
+# 拼接 VLESS 链接
 LINK="vless://${UUID}@${IP}:${PORT}?encryption=none&flow=xtls-rprx-vision&security=reality&sni=${SNI}&fp=chrome&pbk=${PUBLIC_KEY}&type=tcp&headerType=none#${LINK_NAME}"
 
 echo -e "${GREEN}============================================${PLAIN}"
-echo -e "${GREEN}           安装成功！配置如下：             ${PLAIN}"
+echo -e "${GREEN}            安装成功！配置如下：            ${PLAIN}"
 echo -e "${GREEN}============================================${PLAIN}"
 echo -e "地址 (Address): ${RED}${IP}${PLAIN}"
 echo -e "端口 (Port)   : ${RED}${PORT}${PLAIN}"
