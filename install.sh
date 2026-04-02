@@ -18,7 +18,7 @@ echo -e "${GREEN}============================================${PLAIN}"
 # 1. 安装基础工具与依赖 (包含 openssl 用于生成随机数，iproute2 用于端口检测)
 echo -e "${YELLOW}[1/8] 安装基础依赖环境...${PLAIN}"
 apt-get update -y > /dev/null 2>&1
-apt-get install -y curl wget tar openssl iproute2 iptables ufw > /dev/null 2>&1
+apt-get install -y curl wget tar unzip openssl iproute2 iptables ufw > /dev/null 2>&1
 
 # 2. 开启 BBR
 echo -e "${YELLOW}[2/8] 检查并开启 BBR...${PLAIN}"
