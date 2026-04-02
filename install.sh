@@ -166,9 +166,6 @@ cat > /usr/local/etc/xray/config.json <<EOF
 }
 EOF
 
-# 严格收紧配置文件权限 (核心优化)
-chmod 600 /usr/local/etc/xray/config.json
-
 # 6. 配置系统级防火墙放行
 echo -e "${YELLOW}[6/8] 配置本机防火墙规则...${PLAIN}"
 if command -v ufw >/dev/null 2>&1; then
