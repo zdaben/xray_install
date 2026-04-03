@@ -9,7 +9,7 @@ PLAIN='\033[0m'
 
 # 核心缓存路径 (硬编码，防变量丢失)
 CACHE_FILE="/usr/local/etc/xray/.xray_info"
-SCRIPT_PATH="/usr/local/bin/xr"
+SCRIPT_PATH="/usr/local/bin/xmgr"
 
 # 检查是否为 Root 用户
 [[ $EUID -ne 0 ]] && echo -e "${RED}错误：必须使用 root 用户运行此脚本！${PLAIN}" && exit 1
@@ -19,7 +19,7 @@ if [ "$0" != "$SCRIPT_PATH" ] && [ "$1" != "menu" ]; then
     cp "$0" "$SCRIPT_PATH"
     chmod +x "$SCRIPT_PATH"
     echo -e "${GREEN}✅ 控制台已升级并注册为系统级命令！${PLAIN}"
-    echo -e "以后在任意目录输入 ${CYAN}xr${PLAIN} 即可瞬间唤出本看板。"
+    echo -e "以后在任意目录输入 ${CYAN}xmgr${PLAIN} 即可瞬间唤出本看板。"
     sleep 2
     exec "$SCRIPT_PATH" "menu"
 fi
