@@ -23,8 +23,8 @@
 请将下面的命令复制到服务器终端中执行：
 
 ```bash
-# Xray一键部署脚本
-apt update -y && curl -sSLo /usr/local/bin/xmgr https://raw.githubusercontent.com/zdaben/xray_install/main/xmgr.sh && chmod +x /usr/local/bin/xmgr  && xmgr install
+# Xmgr一键部署脚本
+apt update -y && curl -sSLo /usr/local/bin/xmgr https://raw.githubusercontent.com/zdaben/xmgr_install/main/xmgr.sh && chmod +x /usr/local/bin/xmgr  && xmgr install
 ```
 
 
